@@ -50,9 +50,6 @@ export default function Home() {
           {/* การ์ดสำหรับแผนที่ */}
           <Card sx={{ width: '100%', height: '100%' }}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>
-                แผนที่
-              </Typography>
               <div style={{ height: '400px', width: '100%' }}>
                 <MapComponent />
               </div>
