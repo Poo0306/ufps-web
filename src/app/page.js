@@ -1,3 +1,4 @@
+
 'use client'
 
 import dynamic from 'next/dynamic'
@@ -12,89 +13,28 @@ const MapComponent = dynamic(() => import('@/components/MapComponents'), {
 function Header() {
   return (
     <header style={{ padding: '10px', backgroundColor: '#1976d2', color: 'white' }}>
-      <Typography variant="h6">Mupcop</Typography>
-      <nav>
-        <ul style={{ listStyle: 'none', display: 'flex', gap: '10px', margin: 0, padding: 0 }}>
-          <li>Air quality</li>
-          <li>History data</li>
-        </ul>
-      </nav>
+      <Typography variant="h6">แผนที่และข้อมูล</Typography>
     </header>
   )
 }
 
-function AirQualitySummary() {
+function Sidebar() {
   return (
-    <Card sx={{ marginBottom: '20px' }}>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          UFPs Monitoring
-        </Typography>
-        <Typography variant="body1">LIVE 11/26/2024</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '10px' }}>
-          <Box>
-            <Typography variant="h4">0.18</Typography>
-            <Typography variant="body1">Good</Typography>
-            <Typography variant="body2">(Long-term/Short-term)</Typography>
-          </Box>
-          <Box>
-            <Typography variant="body1">26°C</Typography>
-            <Typography variant="body1">0.15 m/s</Typography>
-            <Typography variant="body1">76 %</Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  )
-}
-
-function PollutantMeters() {
-  return (
-    <Box sx={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6">PM0.1</Typography>
-          <Typography variant="body2">ฅุณสมบัติทางเคมีกายภาพที่มาจาก 0.1 ไมครอน</Typography>
-          <Typography variant="body1">0.18 (μg/m³)</Typography>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <Typography variant="h6">PM2.5</Typography>
-          <Typography variant="body2">ฅุณสมบัติทางเคมีกายภาพที่มาจาก 2.5 ไมครอน</Typography>
-          <Typography variant="body1">6.89 (μg/m³)</Typography>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <Typography variant="h6">PM10</Typography>
-          <Typography variant="body2">ฅุณสมบัติทางเคมีกายภาพที่มาจาก 10 ไมครอน</Typography>
-          <Typography variant="body1">13.67 (μg/m³)</Typography>
-        </CardContent>
-      </Card>
-    </Box>
-  )
-}
-
-function StationInfo() {
-  return (
-    <Box>
-      <Typography variant="h6">สถานีเฝ้าระวัง</Typography>
+    <aside style={{ width: '200px', backgroundColor: '#f4f4f4', padding: '10px' }}>
+      <Typography variant="h6">เมนู</Typography>
       <ul>
-        <li>สถานีมหาวิทยาลัยเกษตรศาสตร์</li>
-        <li>สถานีปทุมธานี</li>
-        <li>สถานีบางบัวทองบางพลี</li>
+        <li>หน้าหลัก</li>
+        <li>แผนที่</li>
+        <li>ข้อมูลเพิ่มเติม</li>
       </ul>
-    </Box>
+    </aside>
   )
 }
 
 function Footer() {
   return (
-    <footer style={{ padding: '10px', backgroundColor: '#f5f5f5', marginTop: 'auto' }}>
-      <Typography variant="body2" align="center">
-        Made by Jitpisit Dream Yok
-      </Typography>
+    <footer style={{ padding: '10px', backgroundColor: '#1976d2', color: 'white', marginTop: 'auto' }}>
+      <Typography variant="body2" align="center">© 2024 แผนที่และข้อมูล</Typography>
     </footer>
   )
 }
@@ -104,21 +44,23 @@ export default function Home() {
     <main style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
 
-      <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px', flex: 1 }}>
-        <AirQualitySummary />
-        <PollutantMeters />
+      <Box style={{ display: 'flex', flex: 1 }}>
+        <Sidebar />
 
-        <Card>
-          <CardContent>
-            <Box sx={{ display: 'flex', gap: '20px' }}>
-              <Box sx={{ flex: 1, height: '400px' }}>
+        <Container style={{ flex: 1, padding: '20px' }}>
+          {/* การ์ดสำหรับแผนที่ */}
+          <Card sx={{ width: '100%', height: '100%' }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>
+                แผนที่
+              </Typography>
+              <div style={{ height: '400px', width: '100%' }}>
                 <MapComponent />
-              </Box>
-              <StationInfo />
-            </Box>
-          </CardContent>
-        </Card>
-      </Container>
+              </div>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
 
       <Footer />
     </main>
