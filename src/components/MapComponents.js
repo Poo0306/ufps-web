@@ -18,17 +18,17 @@ export default function MapComponent() {
 
     // เพิ่มกล่องข้อมูล
     const info = L.control({ position: 'topright' })
-    info.onAdd = function() {
+    info.onAdd = function () {
       const div = L.DomUtil.create('div', 'info-box')
       div.innerHTML = '<h4>ข้อมูลแผนที่</h4>' +
-                     'คลิกที่แผนที่เพื่อดูพิกัด<br>' +
-                     'ใช้ปุ่ม + - เพื่อซูมเข้า-ออก'
+        'คลิกที่แผนที่เพื่อดูพิกัด<br>' +
+        'ใช้ปุ่ม + - เพื่อซูมเข้า-ออก'
       return div
     }
     info.addTo(map)
 
     // เพิ่ม click event
-    map.on('click', function(e) {
+    map.on('click', function (e) {
       L.popup()
         .setLatLng(e.latlng)
         .setContent("พิกัด: " + e.latlng.lat.toFixed(4) + ", " + e.latlng.lng.toFixed(4))
