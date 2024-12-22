@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Navigation />
+      {/* <Navigation /> */}
       {/* Use flex with responsive width on monitoring panel */}
       <div className="flex flex-col lg:flex-row flex-1 relative">
         {/* Panel takes 1/3 width on desktop */}

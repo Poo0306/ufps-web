@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowUpRight, Thermometer, Droplets, Menu } from 'lucide-react';
 
 const Header = () => (
-  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100/50">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100/50 border-b border-green-100">
     <div className="flex items-center gap-2">
       <div className="w-8 h-8 flex items-center justify-center">
         <img src="/mupcop-logo.png" alt="Mupcop logo" className="w-8 h-8 object-contain" />
@@ -10,19 +10,27 @@ const Header = () => (
       <h1 className="text-xl font-semibold text-gray-800">Mupcop</h1>
     </div>
     <p className="text-sm text-gray-600 max-w-xl">Multi-factor ultrafine particle (PM0.1) concentration optimization prediction</p>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 " >
+      <button className="px-3 sm:px-4 py-1.5 text-sm font-medium  text-green-800 rounded-lg hover:bg-green-200 whitespace-nowrap">
+        Air quality
+      </button>
+      <button className="px-3 sm:px-4 py-1.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-green-200 whitespace-nowrap">
+        History data
+      </button>
+    </div>
   </div>
 );
 
-const Navigation = () => (
-  <nav className="flex gap-2 sm:gap-4 px-4 py-2 bg-green-50 border-b border-green-100 overflow-x-auto">
-    <button className="px-3 sm:px-4 py-1.5 text-sm font-medium bg-green-100 text-green-800 rounded-lg hover:bg-green-200 whitespace-nowrap">
-      Air quality
-    </button>
-    <button className="px-3 sm:px-4 py-1.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-green-100 whitespace-nowrap">
-      History data
-    </button>
-  </nav>
-);
+// const Navigation = () => (
+//   <nav className="flex gap-2 sm:gap-4 px-4 py-2 bg-green-50 border-b border-green-100 overflow-x-auto">
+//     <button className="px-3 sm:px-4 py-1.5 text-sm font-medium bg-green-100 text-green-800 rounded-lg hover:bg-green-200 whitespace-nowrap">
+//       Air quality
+//     </button>
+//     <button className="px-3 sm:px-4 py-1.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-green-100 whitespace-nowrap">
+//       History data
+//     </button>
+//   </nav>
+// );
 
 const MonitoringPanel = ({ data }) => (
   <div className="bg-gray-50/50 p-4 w-full border-b lg:border-r border-gray-100">
@@ -97,8 +105,14 @@ const MonitoringPanel = ({ data }) => (
 );
 
 const Footer = () => (
-  <div className="p-2 bg-white border-t border-gray-100 text-center text-sm text-gray-500">
-    Made by Jaejae Dream Yok
+  <div className="flex flex-col-3 sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100/50 border-t border-green-100">
+    <span className="text-sm text-gray-500">Made with by Jaejae Dream Yok ❤️</span>
+    <div className="flex items-center justify-end ml-auto">
+      <img src="/mupcop-logo.png" alt="Mupcop logo" className="w-6 h-6 object-contain opacity-75" />
+      <p className="flex text-lg text-sm text-gray-700 max-w-xl ml-auto">
+        Mupcop Project Multi-factor ultrafine particle (PM0.1) concentration optimization prediction
+      </p>
+    </div>
   </div>
 );
 

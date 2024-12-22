@@ -3,7 +3,7 @@ import './globals.css'
 import 'leaflet/dist/leaflet.css'
 
 export const metadata = {
-  title: 'Interactive Map',
+  title: 'Mupcop',
   description: 'Interactive map with Leaflet',
 }
 
