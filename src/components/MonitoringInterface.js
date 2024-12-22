@@ -25,7 +25,7 @@ const Navigation = () => (
 );
 
 const MonitoringPanel = ({ data }) => (
-  <div className="bg-gray-50/50 p-4 w-full lg:w-80 border-b lg:border-r border-gray-100">
+  <div className="bg-gray-50/50 p-4 w-full border-b lg:border-r border-gray-100">
     <div className="mb-4">
       <h2 className="text-lg font-medium mb-3 text-gray-800">UFPs Monitoring</h2>
       

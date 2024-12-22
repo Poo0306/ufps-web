@@ -15,14 +15,14 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <Navigation />
-      {/* On mobile: stack vertically, on tablet/desktop: side by side */}
+      {/* Use flex with responsive width on monitoring panel */}
       <div className="flex flex-col lg:flex-row flex-1 relative">
-        {/* Panel collapses to full width on mobile */}
-        <div className="w-full lg:w-auto">
+        {/* Panel takes 1/3 width on desktop */}
+        <div className="w-full lg:w-1/3">
           <MonitoringPanel data={monitoringData} />
         </div>
-        {/* Map takes remaining space */}
-        <div className="flex-1 relative min-h-[400px] lg:min-h-0">
+        {/* Map takes 2/3 width on desktop */}
+        <div className="flex-1 relative min-h-[400px] lg:min-h-0 lg:w-2/3">
           <MapComponent />
         </div>
       </div>
