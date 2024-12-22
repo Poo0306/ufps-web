@@ -2,19 +2,26 @@ import React from 'react';
 import { ArrowUpRight, Thermometer, Droplets, Menu } from 'lucide-react';
 
 const Header = () => (
-  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100/50 border-b border-green-100">
-    <div className="flex items-center gap-2">
-      <div className="w-8 h-8 flex items-center justify-center">
-        <img src="/mupcop-logo.png" alt="Mupcop logo" className="w-8 h-8 object-contain" />
+  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100 border-b border-green-100">
+    <div className="flex items-center gap-6">
+      <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
+        <img
+          src="/mupcop-logo.png"
+          alt="Mupcop logo"
+          className="w-16 h-16 object-contain"
+          style={{ minWidth: '82px', minHeight: '82px' }}
+        />
       </div>
-      <h1 className="text-xl font-semibold text-gray-800">Mupcop</h1>
+      <div className="flex-grow">
+        <h1 className="text-3xl font-bold text-black mb-1">Mupcop</h1>
+        <h2 className="text-base font-light text-black max-w-xl">Multi-factor ultrafine particle (PM0.1) concentration optimization prediction</h2>
+      </div>
     </div>
-    <p className="text-sm text-gray-600 max-w-xl">Multi-factor ultrafine particle (PM0.1) concentration optimization prediction</p>
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 " >
-      <button className="px-3 sm:px-4 py-1.5 text-sm font-medium  text-green-800 rounded-lg hover:bg-green-200 whitespace-nowrap">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4">
+      <button className="px-3 sm:px-4 py-1.5 text-2xl font-semibold text-black rounded-lg hover:bg-green-200 whitespace-nowrap">
         Air quality
       </button>
-      <button className="px-3 sm:px-4 py-1.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-green-200 whitespace-nowrap">
+      <button className="px-3 sm:px-4 py-1.5 text-2xl font-semibold text-black rounded-lg hover:bg-green-200 whitespace-nowrap">
         History data
       </button>
     </div>
@@ -35,25 +42,25 @@ const Header = () => (
 const MonitoringPanel = ({ data }) => (
   <div className="bg-gray-50/50 p-4 w-full border-b lg:border-r border-gray-100">
     <div className="mb-4">
-      <h2 className="text-lg font-medium mb-3 text-gray-800">UFPs Monitoring</h2>
-      
+      <h2 className="text-3xl font-light mb-3 text-black-800">UFPs Monitoring</h2>
+
       {/* Main monitoring card */}
       <div className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-gray-600">LIVE</span>
+            <span className="text-2xl font-semibold text-black">LIVE</span>
           </div>
-          <span className="text-sm text-gray-400">{data.date}</span>
+          <span className="text-base text-black">{data.date}</span>
         </div>
-        
+
         <div className="bg-blue-500 text-white p-4 rounded-xl mb-4 shadow-md">
           <div className="flex justify-between items-start">
             <div>
-              <span className="text-4xl font-bold">{data.mainReading.value}</span>
-              <span className="text-sm ml-1">{data.mainReading.unit}</span>
+              <span className="text-3xl font-bold">{data.mainReading.value}</span>
+              <span className="text-base ml-1">{data.mainReading.unit}</span>
             </div>
-            <div className="text-right">
+            <div className="text-center">
               <div className="font-medium">{data.mainReading.status}</div>
               <div className="text-xs opacity-90">{data.mainReading.note}</div>
             </div>
@@ -105,13 +112,22 @@ const MonitoringPanel = ({ data }) => (
 );
 
 const Footer = () => (
-  <div className="flex flex-col-3 sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100/50 border-t border-green-100">
-    <span className="text-sm text-gray-500">Made with by Jaejae Dream Yok ❤️</span>
-    <div className="flex items-center justify-end ml-auto">
-      <img src="/mupcop-logo.png" alt="Mupcop logo" className="w-6 h-6 object-contain opacity-75" />
-      <p className="flex text-lg text-sm text-gray-700 max-w-xl ml-auto">
-        Mupcop Project Multi-factor ultrafine particle (PM0.1) concentration optimization prediction
-      </p>
+  <div className="flex flex-col-3 sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100 border-t border-green-100">
+    <span className="text-base text-black">Made with by Jaejae Dream Yok ❤️</span>
+    <div className="flex items-center justify-end ml-auto gap-4">
+      <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center">
+        <img
+          src="/mupcop-logo.png"
+          alt="Mupcop logo"
+          className="w-16 h-16 object-contain"
+          style={{ minWidth: '82px', minHeight: '82px' }}
+        />
+      </div>
+      <div className="flex-col">
+        <p className="text-sm text-gray-700 max-w-xl">
+          <span className="text-3xl font-bold text-black mb-1">Mupcop</span> Multi factor ultrafine particle (PM0.1) concentration optimization prediction
+        </p>
+      </div>
     </div>
   </div>
 );
