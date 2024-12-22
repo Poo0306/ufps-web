@@ -28,17 +28,6 @@ const Header = () => (
   </div>
 );
 
-// const Navigation = () => (
-//   <nav className="flex gap-2 sm:gap-4 px-4 py-2 bg-green-50 border-b border-green-100 overflow-x-auto">
-//     <button className="px-3 sm:px-4 py-1.5 text-sm font-medium bg-green-100 text-green-800 rounded-lg hover:bg-green-200 whitespace-nowrap">
-//       Air quality
-//     </button>
-//     <button className="px-3 sm:px-4 py-1.5 text-sm font-medium text-gray-600 rounded-lg hover:bg-green-100 whitespace-nowrap">
-//       History data
-//     </button>
-//   </nav>
-// );
-
 const MonitoringPanel = ({ data }) => (
   <div className="bg-gray-50/50 p-4 w-full border-b lg:border-r border-gray-100">
     <div className="mb-4">
@@ -125,7 +114,7 @@ const Footer = () => (
       </div>
       <div className="flex-col">
         <p className="text-sm text-gray-700 max-w-xl">
-          <span className="text-3xl font-bold text-black mb-1">Mupcop</span> Multi factor ultrafine particle (PM0.1) concentration optimization prediction
+          <span className="text-3xl font-bold text-black mb-1">Mupcop</span>
         </p>
       </div>
     </div>
