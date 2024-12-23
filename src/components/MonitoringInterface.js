@@ -49,8 +49,8 @@ const LiveIndicator = () => (
 
 const WeatherCondition = ({ icon: Icon, value }) => (
   <div className="text-center flex flex-col items-center gap-1">
-    <Icon className="w-4 h-4 text-gray-400" />
-    <div className="text-gray-600">{value}</div>
+    <Icon className="w-4 h-4 text-black" />
+    <div className="text-black">{value}</div>
   </div>
 );
 
@@ -59,7 +59,7 @@ const PMReading = ({ type, value }) => (
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 bg-blue-500 rounded-full" />
-        <span className="font-medium">{type}</span>
+        <span className="text-lg">{type}</span>
       </div>
       <span className="text-blue-500 font-medium">{formatPMValue(value)}</span>
     </div>
@@ -74,7 +74,7 @@ const Recommendation = ({ text, index }) => (
 );
 
 const LoadingState = () => (
-  <div className="text-center py-8">
+  <div className="font-2xl text-center py-8">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800 mx-auto mb-4"></div>
     <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
   </div>
@@ -94,7 +94,7 @@ const MonitoringPanel = () => {
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
           <div className="flex items-center justify-between mb-3">
             <LiveIndicator />
-            <span className="text-base text-black">{data.date}</span>
+            <span className="text-md text-black">{data.date}</span>
           </div>
 
           <div
@@ -104,16 +104,16 @@ const MonitoringPanel = () => {
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-3xl font-bold">{data.mainReading.value}</span>
-                <span className="text-base ml-1">{data.mainReading.unit}</span>
+                <span className="text-md ml-1">{data.mainReading.unit}</span>
               </div>
               <div className="text-center">
-                <div className="font-medium">{data.mainReading.status}</div>
-                <div className="text-xs opacity-90">{data.mainReading.note}</div>
+                <div className="text-3xl font-bold">{data.mainReading.status}</div>
+                <div className="text-md opacity-90">{data.mainReading.note}</div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="text-md grid grid-cols-2 gap-4 text-base">
             <WeatherCondition
               icon={Thermometer}
               value={data.conditions.temperature}
@@ -125,7 +125,7 @@ const MonitoringPanel = () => {
           </div>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="text-lg grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
           {data.pmReadings.map((reading, index) => (
             <PMReading
               key={`pm-${index}`}
@@ -137,8 +137,8 @@ const MonitoringPanel = () => {
       </div>
 
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <h3 className="font-medium text-gray-800 mb-3">คำแนะนำวันนี้</h3>
-        <div className="space-y-2.5 text-sm">
+        <h3 className="text-lg text-black mb-3">คำแนะนำวันนี้</h3>
+        <div className="text-lg space-y-2.5 text-sm">
           {data.recommendations.map((recommendation, index) => (
             <Recommendation
               key={`rec-${index}`}
