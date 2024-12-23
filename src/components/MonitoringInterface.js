@@ -166,7 +166,11 @@ const Footer = () => (
         />
       </div>
       <div className="flex-col">
+<<<<<<< Updated upstream
         <p className="text-sm text-gray-700">
+=======
+        <p className="text-sm text-gray-700 max-w-xl">
+>>>>>>> Stashed changes
           <span className="text-3xl font-bold text-black mb-1">Mupcop</span>
         </p>
       </div>
