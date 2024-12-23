@@ -4,13 +4,15 @@ import { ClientWrapper } from '../components/ClientWrapper'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <div className="h-screen flex flex-col overflow-hidden">
       <Header />
-      <div className="flex flex-col lg:flex-row">
+      <main className="flex-1 flex flex-col lg:flex-row min-h-0 relative">
         <MonitoringPanel />
-        <ClientWrapper />
-      </div>
+        <div className="flex-1 relative">
+          <ClientWrapper />
+        </div>
+      </main>
       <Footer />
-    </main>
+    </div>
   )
 }

@@ -49,7 +49,7 @@ const MapComponent = () => {
       return
     }
 
-    searchResults.innerHTML = '<div class="p-2 text-gray-500">Searching...</div>'
+    searchResults.innerHTML = '<div class="p-2 text-gray-500 text-sm">กำลังค้นหา...</div>'
 
     try {
       const response = await fetch(
@@ -58,7 +58,7 @@ const MapComponent = () => {
       const data = await response.json()
 
       if (data.length === 0) {
-        searchResults.innerHTML = '<div class="p-2 text-gray-500">No results found</div>'
+        searchResults.innerHTML = '<div class="p-2 text-gray-500 text-sm">ไม่พบผลการค้นหา</div>'
         return
       }
 
@@ -66,7 +66,7 @@ const MapComponent = () => {
         .slice(0, 5)
         .map(result => `
           <div 
-            class="p-2 hover:bg-gray-100 cursor-pointer" 
+            class="p-2 hover:bg-gray-100 cursor-pointer text-sm" 
             onclick="window.goToLocation(${result.lat}, ${result.lon}, '${result.display_name.replace(/'/g, "\\'")}')"
           >
             ${result.display_name}
@@ -75,7 +75,7 @@ const MapComponent = () => {
         .join('')
     } catch (error) {
       console.error('Search error:', error)
-      searchResults.innerHTML = '<div class="p-2 text-red-500">Error searching location</div>'
+      searchResults.innerHTML = '<div class="p-2 text-red-500 text-sm">เกิดข้อผิดพลาดในการค้นหา</div>'
     }
   }, [])
 
@@ -84,6 +84,7 @@ const MapComponent = () => {
     if (!mapRef.current) {
       const mapInstance = L.map('map', {
         zoomControl: false,
+        attributionControl: false // Hide attribution initially
       }).setView(WALAILAK_COORDS, DEFAULT_ZOOM)
       
       mapRef.current = mapInstance
@@ -93,16 +94,21 @@ const MapComponent = () => {
         position: 'bottomright'
       }).addTo(mapInstance)
 
+      // Add attribution control (bottom-left, more compact)
+      L.control.attribution({
+        position: 'bottomleft',
+        prefix: 'Leaflet | © OpenStreetMap'
+      }).addTo(mapInstance)
+
       // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
         maxZoom: 19
       }).addTo(mapInstance)
 
       // Add initial Walailak marker
       const initialMarker = L.marker(WALAILAK_COORDS)
         .addTo(mapInstance)
-        .bindPopup("<b>Walailak University</b>")
+        .bindPopup("<b>มหาวิทยาลัยวลัยลักษณ์</b>")
         .openPopup()
       
       markersRef.current = [initialMarker]
@@ -112,19 +118,29 @@ const MapComponent = () => {
       searchControl.onAdd = function() {
         const div = L.DomUtil.create('div', 'leaflet-control leaflet-bar')
         div.innerHTML = `
-          <div class="p-2 bg-white rounded-lg shadow-lg" style="min-width: 250px;">
+          <div class="p-2 bg-white rounded-lg shadow-lg" style="min-width: 200px;">
             <input 
               type="text" 
               id="searchInput" 
-              placeholder="Search location..." 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+              placeholder="ค้นหาสถานที่..." 
+              class="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
             />
-            <div id="searchResults" class="mt-2 max-h-48 overflow-y-auto"></div>
+            <div id="searchResults" class="mt-1 max-h-40 overflow-y-auto bg-white rounded-lg"></div>
           </div>
         `
         return div
       }
       searchControl.addTo(mapInstance)
+
+      // Prevent map zoom when scrolling over search results
+      const searchContainer = document.querySelector('.leaflet-control-container')
+      if (searchContainer) {
+        searchContainer.addEventListener('wheel', (e) => {
+          if (e.target.closest('#searchResults')) {
+            e.stopPropagation()
+          }
+        })
+      }
 
       // Set up search input handler
       const searchInput = document.getElementById('searchInput')
@@ -135,14 +151,27 @@ const MapComponent = () => {
           }
           searchTimeoutRef.current = setTimeout(() => handleSearch(e.target.value), SEARCH_DELAY)
         })
+
+        // Prevent map movement when interacting with search
+        L.DomEvent.disableClickPropagation(searchInput)
+        L.DomEvent.disableScrollPropagation(searchInput)
       }
 
       // Add global location handler
       window.goToLocation = goToLocation
 
       // Handle resize
-      const handleResize = () => mapInstance.invalidateSize()
+      const handleResize = () => {
+        mapInstance.invalidateSize()
+        // Adjust heights of search results based on window size
+        const searchResults = document.getElementById('searchResults')
+        if (searchResults) {
+          const windowHeight = window.innerHeight
+          searchResults.style.maxHeight = `${Math.min(windowHeight * 0.3, 160)}px`
+        }
+      }
       window.addEventListener('resize', handleResize)
+      handleResize() // Initial call
 
       // Cleanup function
       return () => {
@@ -158,15 +187,15 @@ const MapComponent = () => {
         markersRef.current = []
       }
     }
-  }, [goToLocation, handleSearch]) // Include callbacks in dependencies
+  }, [goToLocation, handleSearch])
 
   return (
     <div 
       id="map" 
-      className="w-full h-full inset-0"
-      style={{ 
-        height: '100%',
-        minHeight: '500px',
+      className="w-full h-full"
+      style={{
+        position: 'relative',
+        zIndex: 0
       }}
     />
   )
