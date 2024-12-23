@@ -8,7 +8,7 @@ const MapComponent = dynamic(() => import('./MapComponents'), {
 
 export function ClientWrapper() {
   return (
-    <div className="flex-1 h-[calc(100vh-80px)]">
+    <div className="absolute inset-0">
       <MapComponent />
     </div>
   )

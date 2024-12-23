@@ -1,7 +1,7 @@
 'use client'
 
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue } from 'firebase/database';
+import { getDatabase, ref, onValue, query, orderByKey, limitToLast } from 'firebase/database';
 import { useState, useEffect } from 'react';
 
 // Firebase configuration
@@ -20,14 +20,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+// Constants
+const FIREBASE_USER_ID = 'EDGk6glhF7gyCgk8BwpPlWOV26B2';
+const BASE_PATH = 'PieraData';
+
 // Helper functions
+const getCurrentDatePath = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getCurrentTime = () => {
+  const date = new Date();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+const formatDisplayDate = (date) => {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
+// PM thresholds and color functions remain the same
 export const getAirQualityColor = (status) => {
   const colors = {
-    Good: '#10B981',        // Green
-    Moderate: '#F59E0B',    // Yellow
-    Unhealthy: '#EF4444',   // Red
-    'Very Unhealthy': '#7C3AED',  // Purple
-    Hazardous: '#991B1B'    // Dark Red
+    Good: '#10B981',
+    Moderate: '#F59E0B',
+    Unhealthy: '#EF4444',
+    'Very Unhealthy': '#7C3AED',
+    Hazardous: '#991B1B'
   };
   return colors[status] || colors.Moderate;
 };
@@ -43,7 +71,6 @@ export const getRecommendationIcon = (index) => {
   return icons[index] || '•';
 };
 
-// Constants for thresholds
 export const PM_THRESHOLDS = {
   PM01: {
     good: 0.5,
@@ -62,15 +89,6 @@ export const PM_THRESHOLDS = {
   }
 };
 
-// Function to format date consistently
-const formatDate = (date) => {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month}/${day}/${year}`;
-};
-
-// Function to determine air quality status based on PM values
 const determineAirQuality = (pm01, pm25, pm100) => {
   if (pm01 <= PM_THRESHOLDS.PM01.good && 
       pm25 <= PM_THRESHOLDS.PM25.good && 
@@ -85,10 +103,11 @@ const determineAirQuality = (pm01, pm25, pm100) => {
   }
 };
 
-// Custom hook to get realtime monitoring data
+// Updated hook to get realtime monitoring data with time-based updates
 export const useMonitoringData = () => {
   const [monitoringData, setMonitoringData] = useState({
-    date: formatDate(new Date()),
+    date: formatDisplayDate(new Date()),
+    time: getCurrentTime(),
     mainReading: {
       value: 0,
       unit: "μg/m³",
@@ -112,68 +131,83 @@ export const useMonitoringData = () => {
   });
 
   useEffect(() => {
-    // Reference to your PM data in Firebase
-    const pmDataRef = ref(database, '/PieraData/EDGk6glhF7gyCgk8BwpPlWOV26B2');
+    const datePath = getCurrentDatePath();
+    const dataPath = `/${BASE_PATH}/${FIREBASE_USER_ID}/${datePath}`;
+    
+    // Create a query to get the latest time entry
+    const timeQuery = query(
+      ref(database, dataPath),
+      orderByKey(),
+      limitToLast(1)
+    );
 
-    const unsubscribe = onValue(pmDataRef, (snapshot) => {
-      const data = snapshot.val();
+    const unsubscribe = onValue(timeQuery, (snapshot) => {
+      const timeData = snapshot.val();
       
-      if (data) {
-        const pm01 = parseFloat(data.pm01 || 0);
-        const pm25 = parseFloat(data.pm25 || 0);
-        const pm10 = parseFloat(data.pm100 || 0);
+      if (timeData) {
+        // Get the latest time entry
+        const latestTime = Object.keys(timeData)[0];
+        const data = timeData[latestTime];
         
-        const airQualityStatus = determineAirQuality(pm01, pm25, pm10);
-        
-        const recommendations = (() => {
-          switch (airQualityStatus) {
-            case 'Good':
-              return [
-                "ไม่มีมลพิษทางอากาศ",
-                "สามารถใช้ชีวิตได้ตามปกติ",
-                "สามารถเปิดหน้าต่างระบายอากาศได้"
-              ];
-            case 'Moderate':
-              return [
-                "ควรลดกิจกรรมกลางแจ้ง",
-                "ปิดหน้าต่างเมื่ออยู่ในอาคาร",
-                "สวมหน้ากากอนามัยเมื่อออกนอกอาคาร"
-              ];
-            case 'Unhealthy':
-              return [
-                "หลีกเลี่ยงกิจกรรมกลางแจ้ง",
-                "ปิดประตูหน้าต่างให้สนิท",
-                "สวมหน้ากากป้องกันฝุ่นเมื่อจำเป็นต้องออกนอกอาคาร"
-              ];
-            default:
-              return [
-                "กำลังประมวลผลคำแนะนำ...",
-                "โปรดติดตามสถานการณ์อย่างใกล้ชิด",
-                "ปฏิบัติตามคำแนะนำของเจ้าหน้าที่"
-              ];
-          }
-        })();
+        if (data) {
+          const pm01 = parseFloat(data.PM01 || 0);
+          const pm25 = parseFloat(data.PM25 || 0);
+          const pm10 = parseFloat(data.PM100 || 0);
+          
+          const airQualityStatus = determineAirQuality(pm01, pm25, pm10);
+          
+          const recommendations = (() => {
+            switch (airQualityStatus) {
+              case 'Good':
+                return [
+                  "ไม่มีมลพิษทางอากาศ",
+                  "สามารถใช้ชีวิตได้ตามปกติ",
+                  "สามารถเปิดหน้าต่างระบายอากาศได้"
+                ];
+              case 'Moderate':
+                return [
+                  "ควรลดกิจกรรมกลางแจ้ง",
+                  "ปิดหน้าต่างเมื่ออยู่ในอาคาร",
+                  "สวมหน้ากากอนามัยเมื่อออกนอกอาคาร"
+                ];
+              case 'Unhealthy':
+                return [
+                  "หลีกเลี่ยงกิจกรรมกลางแจ้ง",
+                  "ปิดประตูหน้าต่างให้สนิท",
+                  "สวมหน้ากากป้องกันฝุ่นเมื่อจำเป็นต้องออกนอกอาคาร"
+                ];
+              default:
+                return [
+                  "กำลังประมวลผลคำแนะนำ...",
+                  "โปรดติดตามสถานการณ์อย่างใกล้ชิด",
+                  "ปฏิบัติตามคำแนะนำของเจ้าหน้าที่"
+                ];
+            }
+          })();
 
-        setMonitoringData(prev => ({
-          ...prev,
-          date: formatDate(new Date()),
-          mainReading: {
-            value: pm01,
-            unit: "μg/m³",
-            status: airQualityStatus,
-            note: "(Long-term/Short-term)"
-          },
-          conditions: {
-            temperature: `${data.temperature || "N/A"}°C`,
-            humidity: `${data.humidity || "N/A"}%`
-          },
-          pmReadings: [
-            { type: "PM0.1", value: `${pm01} μg/m³` },
-            { type: "PM2.5", value: `${pm25} μg/m³` },
-            { type: "PM10", value: `${pm10} μg/m³` }
-          ],
-          recommendations
-        }));
+          setMonitoringData({
+            date: formatDisplayDate(new Date()),
+            time: latestTime,
+            mainReading: {
+              value: pm01,
+              unit: "μg/m³",
+              status: airQualityStatus,
+              note: "(Long-term/Short-term)"
+            },
+            conditions: {
+              temperature: `${data.temperature || "N/A"}°C`,
+              humidity: `${data.humidity || "N/A"}%`
+            },
+            pmReadings: [
+              { type: "PM0.1", value: `${pm01} μg/m³` },
+              { type: "PM2.5", value: `${pm25} μg/m³` },
+              { type: "PM10", value: `${pm10} μg/m³` }
+            ],
+            recommendations
+          });
+        }
+      } else {
+        console.log('No data found for current date and time:', datePath);
       }
     });
 
