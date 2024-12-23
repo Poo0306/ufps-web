@@ -150,21 +150,22 @@ const MonitoringPanel = () => {
 };
 
 const Footer = () => (
-  <footer className="h-12 bg-green-100 border-t border-green-100 flex-shrink-0">
-    <div className="h-full flex items-center justify-between px-4">
-      <span className="text-xs text-black">Made with by Jaejae Dream Yok ❤️</span>
-      <div className="flex items-center gap-2">
+  <footer className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-4 bg-green-100 border-t border-green-100">
+    <span className="text-base text-black">Made with by Jaejae Dream Yok ❤️</span>
+    <div className="flex items-center justify-end ml-auto gap-4">
+      <div className="w-8 h-8 flex-shrink-0 flex items-center justify-center">
         <img
           src="/mupcop-logo.png"
           alt="Mupcop logo"
-          className="w-8 h-8 object-contain"
+          className="w-16 h-16 object-contain"
+          width={82}
+          height={82}
         />
       </div>
       <div className="flex-col">
-        <p className="text-sm text-gray-700 max-w-xl">
-          <span className="text-3xl font-bold text-black mb-1">Mupcop</span>
+        <p className="text-sm text-gray-700">
+          <span className="text-xl font-bold text-black mb-1">Mupcop</span>
         </p>
-        <span className="text-sm font-bold text-black">Mupcop</span>
       </div>
     </div>
   </footer>
