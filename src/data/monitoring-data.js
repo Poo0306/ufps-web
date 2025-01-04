@@ -51,11 +51,11 @@ const formatDisplayDate = (date) => {
 // PM thresholds and color functions remain the same
 export const getAirQualityColor = (status) => {
   const colors = {
-    Good: '#10B981',
-    Moderate: '#F59E0B',
-    Unhealthy: '#EF4444',
-    'Very Unhealthy': '#7C3AED',
-    Hazardous: '#991B1B'
+    Excellent: '#1E88E5',
+    Good: '#2DC653',
+    Moderate: '#FECF3E',
+    Unhealthy: '#FF9500',
+    Hazardous: '#D02224'
   };
   return colors[status] || colors.Moderate;
 };
@@ -73,36 +73,58 @@ export const getRecommendationIcon = (index) => {
 
 export const PM_THRESHOLDS = {
   PM01: {
+    Excellent: 0.0,
     good: 0.5,
     moderate: 1.0,
-    unhealthy: 2.0
+    unhealthy: 2.0,
+    Hazardous: Number.MAX_VALUE
   },
   PM25: {
-    good: 12.0,
-    moderate: 35.4,
-    unhealthy: 55.4
+    Excellent: 15.0,
+    good: 25.0,
+    moderate: 37.5,
+    unhealthy: 75.0,
+    Hazardous: Number.MAX_VALUE
   },
   PM100: {
-    good: 54,
-    moderate: 154,
-    unhealthy: 254
+    Excellent: 50.0,
+    good: 80.0,
+    moderate: 120.0,
+    unhealthy: 180.0,
+    Hazardous: Number.MAX_VALUE
   }
 };
 
 const determineAirQuality = (pm01, pm25, pm100) => {
-  if (pm01 <= PM_THRESHOLDS.PM01.good && 
-      pm25 <= PM_THRESHOLDS.PM25.good && 
-      pm100 <= PM_THRESHOLDS.PM100.good) {
+  // Check Excellent
+  if (pm01 <= PM_THRESHOLDS.PM01.Excellent &&
+    pm25 <= PM_THRESHOLDS.PM25.Excellent &&
+    pm100 <= PM_THRESHOLDS.PM100.Excellent) {
+    return "Excellent";
+  }
+  // Check Good
+  else if (pm01 <= PM_THRESHOLDS.PM01.good &&
+    pm25 <= PM_THRESHOLDS.PM25.good &&
+    pm100 <= PM_THRESHOLDS.PM100.good) {
     return "Good";
-  } else if (pm01 <= PM_THRESHOLDS.PM01.moderate && 
-             pm25 <= PM_THRESHOLDS.PM25.moderate && 
-             pm100 <= PM_THRESHOLDS.PM100.moderate) {
+  }
+  // Check Moderate
+  else if (pm01 <= PM_THRESHOLDS.PM01.moderate &&
+    pm25 <= PM_THRESHOLDS.PM25.moderate &&
+    pm100 <= PM_THRESHOLDS.PM100.moderate) {
     return "Moderate";
-  } else {
+  }
+  // Check Unhealthy
+  else if (pm01 <= PM_THRESHOLDS.PM01.unhealthy &&
+    pm25 <= PM_THRESHOLDS.PM25.unhealthy &&
+    pm100 <= PM_THRESHOLDS.PM100.unhealthy) {
     return "Unhealthy";
   }
+  // If above all thresholds, return Hazardous
+  else {
+    return "Hazardous";
+  }
 };
-
 // Updated hook to get realtime monitoring data with time-based updates
 export const useMonitoringData = () => {
   const [monitoringData, setMonitoringData] = useState({
@@ -112,7 +134,7 @@ export const useMonitoringData = () => {
       value: 0,
       unit: "μg/m³",
       status: "Good",
-      note: "(Long-term/Short-term)"
+      note: "(Long-term/Short-term)" // ยังคิดไม่ออกใส่ว่าไงดี หรือจะเอาออก เพราะยังไงก็มีในคำแนะนำด้านล่างอยู่แล้ว
     },
     conditions: {
       temperature: "Loading...",
@@ -133,7 +155,7 @@ export const useMonitoringData = () => {
   useEffect(() => {
     const datePath = getCurrentDatePath();
     const dataPath = `/${BASE_PATH}/${FIREBASE_USER_ID}/${datePath}`;
-    
+
     // Create a query to get the latest time entry
     const timeQuery = query(
       ref(database, dataPath),
@@ -143,44 +165,52 @@ export const useMonitoringData = () => {
 
     const unsubscribe = onValue(timeQuery, (snapshot) => {
       const timeData = snapshot.val();
-      
+
       if (timeData) {
         // Get the latest time entry
         const latestTime = Object.keys(timeData)[0];
         const data = timeData[latestTime];
-        
+
         if (data) {
           const pm01 = parseFloat(data.PM01 || 0);
           const pm25 = parseFloat(data.PM25 || 0);
           const pm10 = parseFloat(data.PM100 || 0);
-          
+
           const airQualityStatus = determineAirQuality(pm01, pm25, pm10);
-          
+
           const recommendations = (() => {
             switch (airQualityStatus) {
-              case 'Good':
+              case 'Excellent':
                 return [
-                  "ไม่มีมลพิษทางอากาศ",
+                  "ไม่มีผลต่อสุขภาพ",
                   "สามารถใช้ชีวิตได้ตามปกติ",
                   "สามารถเปิดหน้าต่างระบายอากาศได้"
                 ];
+              case 'Good':
+                return [
+                  "ไม่มีผลต่อสุขภาพ",
+                  "สามารถใช้ชีวิตได้ตามปกติ",
+                  "สามารถเปิดหน้าต่างระบายอากาศได้",
+                  "กลุ่มเปราะบางอาจะมีความเสี่ยงและสังเกตอาการของตนเอง"
+                ];
               case 'Moderate':
                 return [
-                  "ควรลดกิจกรรมกลางแจ้ง",
-                  "ปิดหน้าต่างเมื่ออยู่ในอาคาร",
-                  "สวมหน้ากากอนามัยเมื่อออกนอกอาคาร"
+                  "ควรปิดหน้าต่างเมื่ออยู่ในอาคาร",
+                  "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
+                  "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง"
                 ];
               case 'Unhealthy':
                 return [
-                  "หลีกเลี่ยงกิจกรรมกลางแจ้ง",
-                  "ปิดประตูหน้าต่างให้สนิท",
-                  "สวมหน้ากากป้องกันฝุ่นเมื่อจำเป็นต้องออกนอกอาคาร"
+                  "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง",
+                  "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
+                  "เตรียมยาหรืออุปกรณ์ตามคำสั่งแพทย์",
+                  "ติดตั้งเครื่องฟอกอากาศ"
                 ];
               default:
                 return [
-                  "กำลังประมวลผลคำแนะนำ...",
-                  "โปรดติดตามสถานการณ์อย่างใกล้ชิด",
-                  "ปฏิบัติตามคำแนะนำของเจ้าหน้าที่"
+                  "ทั้งกลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงสูง",
+                  "งดการทำกิจกรรมหรือเข้าใกล้พื้นที่ที่มีฝุ่น",
+                  "สังเกตอาการของตนเอง หากมีอาการให้ไปพบแพทย์"
                 ];
             }
           })();
