@@ -222,8 +222,8 @@ export const useMonitoringData = () => {
           setMonitoringData(prevData => ({
             ...prevData,
             conditions: {
-              temperature: `${data.temperature || "N/A"}°C`,
-              humidity: `${data.humidity || "N/A"}%`
+              temperature: `${data.IndoorTemperature || "N/A"}°C`,
+              humidity: `${data.IndoorHumidity || "N/A"}%`
             }
           }));
         }
