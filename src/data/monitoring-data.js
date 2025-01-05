@@ -22,7 +22,8 @@ const database = getDatabase(app);
 
 // Constants
 const FIREBASE_USER_ID = 'EDGk6glhF7gyCgk8BwpPlWOV26B2';
-const BASE_PATH = 'PieraData';
+const PIERA_PATH = 'PieraData';
+const RAW_PATH = 'RAWdata/Lab';
 
 // Helper functions
 const getCurrentDatePath = () => {
@@ -134,7 +135,7 @@ export const useMonitoringData = () => {
       value: 0,
       unit: "μg/m³",
       status: "Good",
-      note: "(Long-term/Short-term)" // ยังคิดไม่ออกใส่ว่าไงดี หรือจะเอาออก เพราะยังไงก็มีในคำแนะนำด้านล่างอยู่แล้ว
+      note: "(Long-term/Short-term)"
     },
     conditions: {
       temperature: "Loading...",
@@ -154,20 +155,29 @@ export const useMonitoringData = () => {
 
   useEffect(() => {
     const datePath = getCurrentDatePath();
-    const dataPath = `/${BASE_PATH}/${FIREBASE_USER_ID}/${datePath}`;
+    
+    // Set up paths for both data sources
+    const pieraDataPath = `/${PIERA_PATH}/${FIREBASE_USER_ID}/${datePath}`;
+    const rawDataPath = `/${RAW_PATH}/${datePath}`;
 
-    // Create a query to get the latest time entry
-    const timeQuery = query(
-      ref(database, dataPath),
+    // Create queries for both paths to get latest entries
+    const pieraQuery = query(
+      ref(database, pieraDataPath),
       orderByKey(),
       limitToLast(1)
     );
 
-    const unsubscribe = onValue(timeQuery, (snapshot) => {
+    const rawQuery = query(
+      ref(database, rawDataPath),
+      orderByKey(),
+      limitToLast(1)
+    );
+
+    // Subscribe to Piera data updates
+    const pieraUnsubscribe = onValue(pieraQuery, (snapshot) => {
       const timeData = snapshot.val();
 
       if (timeData) {
-        // Get the latest time entry
         const latestTime = Object.keys(timeData)[0];
         const data = timeData[latestTime];
 
@@ -175,47 +185,12 @@ export const useMonitoringData = () => {
           const pm01 = parseFloat(data.PM01 || 0);
           const pm25 = parseFloat(data.PM25 || 0);
           const pm10 = parseFloat(data.PM100 || 0);
-
+          
           const airQualityStatus = determineAirQuality(pm01, pm25, pm10);
+          const recommendations = getRecommendations(airQualityStatus);
 
-          const recommendations = (() => {
-            switch (airQualityStatus) {
-              case 'Excellent':
-                return [
-                  "ไม่มีผลต่อสุขภาพ",
-                  "สามารถใช้ชีวิตได้ตามปกติ",
-                  "สามารถเปิดหน้าต่างระบายอากาศได้"
-                ];
-              case 'Good':
-                return [
-                  "ไม่มีผลต่อสุขภาพ",
-                  "สามารถใช้ชีวิตได้ตามปกติ",
-                  "สามารถเปิดหน้าต่างระบายอากาศได้",
-                  "กลุ่มเปราะบางอาจะมีความเสี่ยงและสังเกตอาการของตนเอง"
-                ];
-              case 'Moderate':
-                return [
-                  "ควรปิดหน้าต่างเมื่ออยู่ในอาคาร",
-                  "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
-                  "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง"
-                ];
-              case 'Unhealthy':
-                return [
-                  "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง",
-                  "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
-                  "เตรียมยาหรืออุปกรณ์ตามคำสั่งแพทย์",
-                  "ติดตั้งเครื่องฟอกอากาศ"
-                ];
-              case 'Hazardous':
-                return [
-                  "ทั้งกลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงสูง",
-                  "งดการทำกิจกรรมหรือเข้าใกล้พื้นที่ที่มีฝุ่น",
-                  "สังเกตอาการของตนเอง หากมีอาการให้ไปพบแพทย์"
-                ];
-            }
-          })();
-
-          setMonitoringData({
+          setMonitoringData(prevData => ({
+            ...prevData,
             date: formatDisplayDate(new Date()),
             time: latestTime,
             mainReading: {
@@ -224,25 +199,86 @@ export const useMonitoringData = () => {
               status: airQualityStatus,
               note: "(Long-term/Short-term)"
             },
-            conditions: {
-              temperature: `${data.temperature || "N/A"}°C`,
-              humidity: `${data.humidity || "N/A"}%`
-            },
             pmReadings: [
               { type: "PM0.1", value: `${pm01} μg/m³` },
               { type: "PM2.5", value: `${pm25} μg/m³` },
               { type: "PM10", value: `${pm10} μg/m³` }
             ],
             recommendations
-          });
+          }));
         }
-      } else {
-        console.log('No data found for current date and time:', datePath);
       }
     });
 
-    return () => unsubscribe();
+    // Subscribe to RAW data updates
+    const rawUnsubscribe = onValue(rawQuery, (snapshot) => {
+      const timeData = snapshot.val();
+
+      if (timeData) {
+        const latestTime = Object.keys(timeData)[0];
+        const data = timeData[latestTime];
+
+        if (data) {
+          setMonitoringData(prevData => ({
+            ...prevData,
+            conditions: {
+              temperature: `${data.temperature || "N/A"}°C`,
+              humidity: `${data.humidity || "N/A"}%`
+            }
+          }));
+        }
+      }
+    });
+
+    // Cleanup function to unsubscribe from both listeners
+    return () => {
+      pieraUnsubscribe();
+      rawUnsubscribe();
+    };
   }, []);
 
   return monitoringData;
+};
+
+const getRecommendations = (airQualityStatus) => {
+  switch (airQualityStatus) {
+    case 'Excellent':
+      return [
+        "ไม่มีผลต่อสุขภาพ",
+        "สามารถใช้ชีวิตได้ตามปกติ",
+        "สามารถเปิดหน้าต่างระบายอากาศได้"
+      ];
+    case 'Good':
+      return [
+        "ไม่มีผลต่อสุขภาพ",
+        "สามารถใช้ชีวิตได้ตามปกติ",
+        "สามารถเปิดหน้าต่างระบายอากาศได้",
+        "กลุ่มเปราะบางอาจะมีความเสี่ยงและสังเกตอาการของตนเอง"
+      ];
+    case 'Moderate':
+      return [
+        "ควรปิดหน้าต่างเมื่ออยู่ในอาคาร",
+        "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
+        "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง"
+      ];
+    case 'Unhealthy':
+      return [
+        "กลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงและสังเกตอาการของตนเอง",
+        "หลีกเลี่ยงการทำกิจกรรมที่ก่อให้เกิดฝุ่น",
+        "เตรียมยาหรืออุปกรณ์ตามคำสั่งแพทย์",
+        "ติดตั้งเครื่องฟอกอากาศ"
+      ];
+    case 'Hazardous':
+      return [
+        "ทั้งกลุ่มคนทั่วไปและกลุ่มเปราะบางมีความเสี่ยงสูง",
+        "งดการทำกิจกรรมหรือเข้าใกล้พื้นที่ที่มีฝุ่น",
+        "สังเกตอาการของตนเอง หากมีอาการให้ไปพบแพทย์"
+      ];
+    default:
+      return [
+        "กำลังโหลดข้อมูล...",
+        "กำลังวิเคราะห์คุณภาพอากาศ...",
+        "กำลังประมวลผลคำแนะนำ..."
+      ];
+  }
 };

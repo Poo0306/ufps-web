@@ -57,6 +57,7 @@ const MonitoringPanel = () => {
   const data = useMonitoringData();
   const statusColor = getAirQualityColor(data.mainReading.status);
 
+  // แสดง loading state ถ้ายังไม่มีข้อมูล
   if (!data) return (
     <div className="flex items-center justify-center h-full">
       <div className="text-center">
@@ -78,7 +79,10 @@ const MonitoringPanel = () => {
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               <span className="text-base font-semibold text-black">LIVE</span>
             </div>
-            <span className="text-xs text-black">{data.date}</span>
+            <div className="text-right">
+              <span className="text-xs text-black">{data.date}</span>
+              <span className="text-xs text-gray-500 ml-2">{data.time}</span>
+            </div>
           </div>
 
           <div
@@ -98,13 +102,15 @@ const MonitoringPanel = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="text-center flex flex-col items-center gap-1">
-              <Thermometer className="w-4 h-4 text-gray-400" />
-              <div className="text-gray-600">{data.conditions.temperature}</div>
+            <div className="text-center flex flex-col items-center gap-1 bg-blue-50 p-2 rounded-lg">
+              <Thermometer className="w-4 h-4 text-blue-400" />
+              <div className="text-blue-700 font-medium">{data.conditions.temperature}</div>
+              <div className="text-blue-500 text-xs">Temperature</div>
             </div>
-            <div className="text-center flex flex-col items-center gap-1">
-              <Droplets className="w-4 h-4 text-gray-400" />
-              <div className="text-gray-600">{data.conditions.humidity}</div>
+            <div className="text-center flex flex-col items-center gap-1 bg-blue-50 p-2 rounded-lg">
+              <Droplets className="w-4 h-4 text-blue-400" />
+              <div className="text-blue-700 font-medium">{data.conditions.humidity}</div>
+              <div className="text-blue-500 text-xs">Humidity</div>
             </div>
           </div>
         </div>
@@ -114,7 +120,7 @@ const MonitoringPanel = () => {
           {data.pmReadings.map((reading, index) => (
             <div
               key={`pm-${index}`}
-              className="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100"
+              className="bg-white p-2.5 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors"
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
@@ -136,9 +142,9 @@ const MonitoringPanel = () => {
             {data.recommendations.map((recommendation, index) => (
               <div 
                 key={`rec-${index}`} 
-                className="flex items-center gap-2 text-gray-600"
+                className="flex items-center gap-2 text-gray-600 hover:bg-gray-50 p-2 rounded-lg transition-colors"
               >
-                <ArrowUpRight className="w-3 h-3 text-green-500" />
+                <ArrowUpRight className="w-3 h-3 text-green-500 flex-shrink-0" />
                 <span>{`${getRecommendationIcon(index)} ${recommendation}`}</span>
               </div>
             ))}
