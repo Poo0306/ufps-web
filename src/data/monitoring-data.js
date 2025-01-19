@@ -23,7 +23,7 @@ const database = getDatabase(app);
 // Constants
 const FIREBASE_USER_ID = 'EDGk6glhF7gyCgk8BwpPlWOV26B2';
 const PIERA_PATH = 'PieraData';
-const RAW_PATH = 'RAWdata/Lab';
+const RAW_PATH = 'RAWdata/Cafe';
 
 // Helper functions
 const getCurrentDatePath = () => {
